@@ -1,0 +1,40 @@
+import org.junit.jupiter.api.Test;
+import system.book.Book;
+import system.user.User;
+import system.user.UserPlan;
+import system.exception.UserException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestUser {
+    @Test
+    void testCreateUser() throws UserException {
+        User user = User.createUser("test@mail.com", "password", "vip");
+        assertEquals("test@mail.com", user.getEmail());
+        assertEquals("password", user.getPassword());
+        assertEquals(UserPlan.planType.vip, user.getPlan().getType());
+        assertTrue(user.isActive());
+    }
+
+    @Test
+    void testAddBookToUserList() throws UserException {
+        User user = User.createUser("test@mail.com", "password", "standard");
+        Book book = Book.createBook("1984", "George Orwell", "English", "Dystopian", "1949", "50.0", "2");
+        user.addToBookList(book);
+        assertEquals(1, user.getBookList().size());
+    }
+
+    @Test
+    void testChangePassword() throws UserException {
+        User user = User.createUser("test@mail.com", "password", "standard");
+        user.setPassword("newpassword");
+        assertEquals("newpassword", user.getPassword());
+    }
+
+    @Test
+    void testInvalidUserCreation() {
+        assertThrows(UserException.class, () -> {
+            User.createUser("invalidemail", "", "trial");
+        });
+    }
+}

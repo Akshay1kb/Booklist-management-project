@@ -1,0 +1,14 @@
+package system.util;
+
+public class SystemUtil {
+    // Validate a string
+    public static boolean isValid(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+    // Read lines from a file and convert to array of strings (example method, implementation may vary)
+    public static String[] lineReader(String filePath) {
+        // Placeholder for reading lines from a file
+        return new String[0]; // Replace with actual implementation
+    }
+}

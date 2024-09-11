@@ -1,0 +1,271 @@
+package system;
+
+import system.book.*;
+import system.exception.*;
+import system.user.*;
+import system.util.*;
+
+import java.util.Scanner;
+
+public class SystemManager {
+    private static final int LOAD_BOOKLIST = 1;
+    private static final int SHOW_BOOKLIST = 2;
+    private static final int SEARCH_BOOKLIST = 3;
+    private static final int CREATE_USER = 4;
+    private static final int SHOW_USERS = 5;
+    private static final int SAVE_USERS = 6;
+    private static final int LOAD_USERS = 7;
+    private static final int LOGIN_USER = 8;
+    private static final int EXIT = 9;
+
+    private static final int SHOW_ALL_BOOKS = 10;
+    private static final int ADD_BOOK_TO_LIST = 11;
+    private static final int SHOW_USER_BOOKLIST = 12;
+    private static final int READ_BOOK = 13;
+    private static final int DOWNLOAD_BOOK = 14;
+    private static final int CHANGE_PASSWORD = 15;
+    private static final int LOGOFF = 16;
+
+    private static Scanner scanner = new Scanner(System.in);
+    private static boolean isLoggedIn = false;
+    private static User loggedInUser = null;
+    private static BookList bookList = new BookList();
+    private static UserList userList = new UserList();
+
+    public static void main(String[] args) {
+        int choice;
+        do {
+            showMenu();
+            choice = getInput();
+            handleMenuChoice(choice);
+        } while (choice != EXIT);
+    }
+
+    private static void showMenu() {
+        if (isLoggedIn) {
+            System.out.println("================================");
+            System.out.println("|| Menu - User .............. ||");
+            System.out.println("================================");
+            System.out.println("10. Show all books");
+            System.out.println("11. Add book in my list");
+            System.out.println("12. Show my booklist");
+            System.out.println("13. Read book");
+            System.out.println("14. Download book");
+            System.out.println("15. Change password");
+            System.out.println("16. Logoff");
+        } else {
+            System.out.println("================================");
+            System.out.println("|| Menu - Mini-System: OOP/A2 ||");
+            System.out.println("================================");
+            System.out.println("1. Load Booklist");
+            System.out.println("2. Show Booklist");
+            System.out.println("3. Search in the list");
+            System.out.println("4. Create user");
+            System.out.println("5. Show users");
+            System.out.println("6. Save users");
+            System.out.println("7. Load users");
+            System.out.println("8. Login user");
+            System.out.println("9. Exit");
+        }
+        System.out.print("Choose an option: ");
+    }
+
+    private static int getInput() {
+        try {
+            return Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            return -1; // Invalid input
+        }
+    }
+
+    private static void handleMenuChoice(int choice) {
+        try {
+            if (isLoggedIn) {
+                handleUserMenuChoice(choice);
+            } else {
+                handleAdminMenuChoice(choice);
+            }
+        } catch (BookException | UserException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private static void handleAdminMenuChoice(int choice) throws BookException, UserException {
+        switch (choice) {
+            case LOAD_BOOKLIST:
+                loadBookList();
+                break;
+            case SHOW_BOOKLIST:
+                showBookList();
+                break;
+            case SEARCH_BOOKLIST:
+                searchInBookList();
+                break;
+            case CREATE_USER:
+                createUser();
+                break;
+            case SHOW_USERS:
+                showUserList();
+                break;
+            case SAVE_USERS:
+                saveUserList();
+                break;
+            case LOAD_USERS:
+                loadUserList();
+                break;
+            case LOGIN_USER:
+                loginUser();
+                break;
+            case EXIT:
+                System.out.println("Exiting application...");
+                break;
+            default:
+                System.out.println("Invalid option. Please try again.");
+        }
+    }
+
+    private static void handleUserMenuChoice(int choice) throws BookException, UserException {
+        switch (choice) {
+            case SHOW_ALL_BOOKS:
+                showAllBooks();
+                break;
+            case ADD_BOOK_TO_LIST:
+                addBookToUserList();
+                break;
+            case SHOW_USER_BOOKLIST:
+                showUserBookList();
+                break;
+            case READ_BOOK:
+                readBook();
+                break;
+            case DOWNLOAD_BOOK:
+                downloadBook();
+                break;
+            case CHANGE_PASSWORD:
+                changePassword();
+                break;
+            case LOGOFF:
+                logoffUser();
+                break;
+            default:
+                System.out.println("Invalid option. Please try again.");
+        }
+    }
+
+    private static void loadBookList() throws BookException {
+        // Use the manually verified path
+        String filename = "C:\\Users\\aksha\\OneDrive\\Desktop\\Assignment2\\best-selling-books (1).csv";
+        bookList.loadBookList(filename);
+        System.out.println("Book list created successfully!");
+    }
+
+    private static void showBookList() {
+        System.out.println(bookList);
+    }
+
+    private static void searchInBookList() throws BookException {
+        System.out.print("Enter search string: ");
+        String searchString = scanner.nextLine();
+        System.out.println(bookList.searchInBookList(searchString));
+    }
+
+    private static void createUser() throws UserException {
+        System.out.print("Enter the User data:\n- Email: ");
+        String email = scanner.nextLine();
+        System.out.print("- Password: ");
+        String password = scanner.nextLine();
+        System.out.print("- Plan type (trial, standard, vip): ");
+        String planType = scanner.nextLine();
+        User user = User.createUser(email, password, planType);
+        userList.addUser(user);
+        System.out.println("User successfully created!");
+    }
+
+    private static void showUserList() {
+        System.out.println(userList);
+    }
+
+    private static void saveUserList() throws UserException {
+        System.out.print("Enter the user file name: ");
+        String filename = scanner.nextLine();
+        userList.saveUserList(filename);
+        System.out.println("User list saved successfully!");
+    }
+
+    private static void loadUserList() throws UserException {
+        System.out.print("Enter the user file name: ");
+        String filename = scanner.nextLine();
+        userList.loadUserList(filename);
+        System.out.println("User list loaded successfully!");
+    }
+
+    private static void loginUser() throws UserException {
+        System.out.print("Enter the user email: ");
+        String email = scanner.nextLine();
+        System.out.print("Enter the user password: ");
+        String password = scanner.nextLine();
+        for (User user : userList.getUserList()) {
+            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                loggedInUser = user;
+                isLoggedIn = true;
+                System.out.println("User " + email + " logged in!");
+                return;
+            }
+        }
+        throw new UserException("Invalid email or password.");
+    }
+
+    private static void showAllBooks() {
+        System.out.println(bookList);
+    }
+
+    private static void addBookToUserList() throws BookException, UserException {
+        System.out.print("Enter the book index: ");
+        int index = Integer.parseInt(scanner.nextLine());
+        Book book = bookList.findBookByIndex(index);
+        loggedInUser.addToBookList(book);
+        System.out.println("Book added to your list.");
+    }
+
+    private static void showUserBookList() {
+        loggedInUser.displayBookList();
+    }
+
+    private static void readBook() throws BookException, UserException {
+        System.out.print("Enter the book index: ");
+        int index = Integer.parseInt(scanner.nextLine());
+        Book book = loggedInUser.findBookByIndex(index);
+        if (book.read(loggedInUser)) {
+            System.out.println("Book " + book.getName() + " read!");
+        } else {
+            throw new BookException("Cannot read the book.");
+        }
+    }
+
+    private static void downloadBook() throws BookException, UserException {
+        System.out.print("Enter the book index: ");
+        int index = Integer.parseInt(scanner.nextLine());
+        Book book = loggedInUser.findBookByIndex(index);
+        if (book.download(loggedInUser)) {
+            System.out.println("Book " + book.getName() + " downloaded!");
+        } else {
+            throw new BookException("Cannot download the book.");
+        }
+    }
+
+    private static void changePassword() throws UserException {
+        System.out.print("Enter new password: ");
+        String newPassword = scanner.nextLine();
+        if (!SystemUtil.isValid(newPassword)) {
+            throw new UserException("Invalid password.");
+        }
+        loggedInUser.setPassword(newPassword);
+        System.out.println("Password changed successfully.");
+    }
+
+    private static void logoffUser() {
+        loggedInUser = null;
+        isLoggedIn = false;
+        System.out.println("User logged off.");
+    }
+}

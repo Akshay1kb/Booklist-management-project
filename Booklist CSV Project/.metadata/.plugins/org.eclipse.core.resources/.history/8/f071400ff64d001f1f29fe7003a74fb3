@@ -1,0 +1,82 @@
+package system.book;
+
+import system.exception.BookException;
+import system.util.SystemUtil;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookList {
+    private List<Book> bestsellers;
+
+    public BookList() {
+        bestsellers = new ArrayList<>();
+    }
+
+    // Load book list from CSV file
+    public void loadBookList(String csvFile) throws BookException {
+        try {
+            System.out.println("Attempting to read file: " + Paths.get(csvFile).toAbsolutePath());
+            BufferedReader br = new BufferedReader(new FileReader(csvFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length != 7) {
+                    throw new BookException("Invalid data format in CSV file.");
+                }
+                Book book = Book.createBook(data);
+                bestsellers.add(book);
+            }
+            br.close();
+        } catch (IOException e) {
+            throw new BookException("Error reading the CSV file: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new BookException("Error creating book: " + e.getMessage());
+        }
+    }
+
+    // Print the list of books
+    @Override
+    public String toString() {
+        if (bestsellers.isEmpty()) {
+            return "The book list is empty.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Book book : bestsellers) {
+            sb.append(book.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    // Find book by index
+    public Book findBookByIndex(int index) throws BookException {
+        if (index < 0 || index >= bestsellers.size()) {
+            throw new BookException("Index out of range.");
+        }
+        return bestsellers.get(index);
+    }
+
+    // Search for books containing a specific string
+    public List<Book> searchInBookList(String searchString) throws BookException {
+        if (!SystemUtil.isValid(searchString)) {
+            throw new BookException("Invalid search string.");
+        }
+        List<Book> result = new ArrayList<>();
+        for (Book book : bestsellers) {
+            if (book.getName().contains(searchString) || 
+                book.getAuthor().contains(searchString) ||
+                book.getOriginalLanguage().contains(searchString) ||
+                book.getGenre().contains(searchString)) {
+                result.add(book);
+            }
+        }
+        if (result.isEmpty()) {
+            throw new BookException("No books found matching the search criteria.");
+        }
+        return result;
+    }
+}

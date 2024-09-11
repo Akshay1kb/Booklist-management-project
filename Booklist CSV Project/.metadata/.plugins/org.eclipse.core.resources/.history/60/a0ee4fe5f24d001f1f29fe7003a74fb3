@@ -1,0 +1,52 @@
+package system.user;
+
+public class UserPlan {
+    public enum planType {
+        trial, standard, vip
+    }
+
+    private planType type;
+    private boolean isActive;
+
+    // Constructor
+    public UserPlan(planType type, boolean isActive) {
+        this.type = type;
+        this.isActive = isActive;
+    }
+
+    // Getters and Setters
+    public planType getType() {
+        return type;
+    }
+
+    public void setType(planType type) {
+        this.type = type;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    // Universal creation method
+    public static UserPlan createPlan(String... params) {
+        if (params.length != 2) {
+            throw new IllegalArgumentException("Invalid number of parameters to create a UserPlan.");
+        }
+
+        planType type;
+        boolean isActive;
+
+        try {
+            type = planType.valueOf(params[0].toLowerCase());
+            isActive = Boolean.parseBoolean(params[1]);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid parameter value.");
+        }
+
+        return new UserPlan(type, isActive);
+    }
+}

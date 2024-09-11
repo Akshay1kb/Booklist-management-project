@@ -1,0 +1,60 @@
+package system.book;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookManager {
+    private List<Book> books;
+    private String filename;
+
+    public BookManager() {
+        this.books = new ArrayList<>();
+    }
+
+    public void createBookList(String filename) {
+        this.filename = filename;
+        // Logic to load books from the file
+    }
+
+    public void addToBookList(Book book) {
+        this.books.add(book);
+    }
+
+    public void delete(int index) {
+        if (index >= 0 && index < books.size()) {
+            books.remove(index);
+        }
+    }
+
+    public int getSize() {
+        return books.size();
+    }
+
+    public List<Book> getUserList() {
+        return books;
+    }
+
+    public void printList() {
+        for (Book book : books) {
+            System.out.println(book);
+        }
+    }
+
+    public void saveList() {
+        // Logic to save the list of books to a file
+    }
+
+    public List<Book> search(String searchString) {
+        List<Book> result = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getName().contains(searchString) || book.getAuthor().contains(searchString)) {
+                result.add(book);
+            }
+        }
+        return result;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+}

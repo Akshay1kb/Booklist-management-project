@@ -1,0 +1,45 @@
+package system.test;
+
+import org.junit.jupiter.api.Test;
+import system.exception.UserException;
+import system.user.User;
+import system.user.UserList;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestUserList {
+    @Test
+    void testLoadUserList() throws UserException {
+        UserList userList = new UserList();
+        userList.loadUserList("path/to/users.csv"); // Ensure the path to the CSV file is correct
+        assertFalse(userList.toString().isEmpty());
+    }
+
+    @Test
+    void testAddUser() throws UserException {
+        UserList userList = new UserList();
+        User user = User.createUser("test@mail.com", "password", "vip", "true");
+        userList.addUser(user);
+        assertEquals(1, userList.toString().split("\n").length);
+    }
+
+    @Test
+    void testSaveUserList() throws UserException {
+        UserList userList = new UserList();
+        User user = User.createUser("test@mail.com", "password", "vip", "true");
+        userList.addUser(user);
+        userList.saveUserList("path/to/output.csv"); // Ensure the path to the output CSV file is correct
+        // Load the file again to check if the data was saved correctly
+        UserList loadedUserList = new UserList();
+        loadedUserList.loadUserList("path/to/output.csv");
+        assertEquals(userList.toString(), loadedUserList.toString());
+    }
+
+    @Test
+    void testInvalidUserLoading() {
+        UserList userList = new UserList();
+        assertThrows(UserException.class, () -> {
+            userList.loadUserList("invalid/path/to/users.csv");
+        });
+    }
+}

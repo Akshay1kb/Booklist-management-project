@@ -1,0 +1,67 @@
+package system.user;
+
+import system.exception.UserException;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class userList {
+    private List<User> userList;
+
+    public userList() {
+        this.userList = new ArrayList<>();
+    }
+
+    // Add user to the list
+    public void addUser(User user) {
+        userList.add(user);
+    }
+
+    // Load user list from CSV file
+    public void loadUserList(String csvFile) throws UserException {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length != 3) {
+                    throw new UserException("Invalid data format in CSV file.");
+                }
+                User user = User.createUser(data);
+                userList.add(user);
+            }
+        } catch (IOException e) {
+            throw new UserException("Error reading the CSV file: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new UserException("Error creating user: " + e.getMessage());
+        }
+    }
+
+    // Save user list to CSV file
+    public void saveUserList(String csvFile) throws UserException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(csvFile))) {
+            for (User user : userList) {
+                bw.write(user.getEmail() + "," + user.getPassword() + "," + user.getPlan().getType().name() + "\n");
+            }
+        } catch (IOException e) {
+            throw new UserException("Error writing to the CSV file: " + e.getMessage());
+        }
+    }
+
+    // Print the list of users
+    @Override
+    public String toString() {
+        if (userList.isEmpty()) {
+            return "The user list is empty.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (User user : userList) {
+            sb.append(user.getEmail()).append(", Plan: ").append(user.getPlan().getType()).append(", IsActive: ").append(user.isActive()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public List<User> getUserList() {
+        return userList;
+    }
+}

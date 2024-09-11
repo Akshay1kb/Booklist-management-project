@@ -1,0 +1,5 @@
+package system.user;
+
+public class UserPlan {
+
+}

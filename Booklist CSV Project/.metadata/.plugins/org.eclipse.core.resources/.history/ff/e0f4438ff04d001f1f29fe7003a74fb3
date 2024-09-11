@@ -1,0 +1,211 @@
+/*Assignment 1
+ *Student Name: Akshay Kumar Bharti
+ *Student Number: 041134452  
+ *the BookManager class provides a user interface for managing a list of best-selling books.
+ */ 
+package system.book;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class BookManager {
+    private BookList bookList;
+
+    public BookManager() {
+        bookList = new BookList();
+    }
+
+    // Main method to manage the book list
+    public void manageBookList() {
+        Scanner scanner = new Scanner(System.in);
+        int option = 0;
+        do {
+            printMenu();
+            try {
+                // Validate menu option input
+                if (!scanner.hasNextInt()) {
+                    scanner.next(); // clear invalid input
+                    throw new BookException("Invalid entry: enter an integer between 1 and 8");
+                }
+                option = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+                if (option < 1 || option > 8) {
+                    throw new BookException("Invalid entry: enter an integer between 1 and 8");
+                }
+
+                // Handle different menu options
+                switch (option) {
+                    case 1:
+                        createOrLoadBookList();
+                        break;
+                    case 2:
+                        displayBookList();
+                        System.out.println("Press Enter to continue...");
+                        scanner.nextLine();
+                        break;
+                    case 3:
+                        addBook();
+                        break;
+                    case 4:
+                        editBook();
+                        break;
+                    case 5:
+                        deleteBook();
+                        break;
+                    case 6:
+                        saveBookList();
+                        break;
+                    case 7:
+                        search();
+                        break;
+                    case 8:
+                        System.out.println("Exiting...");
+                        break;
+                }
+            } catch (BookException e) {
+                System.err.println("BookException: " + e.getMessage());
+            }
+        } while (option != 8);
+    }
+
+    // Print menu options
+    private void printMenu() {
+        System.out.println("================================");
+        System.out.println("|| Menu - Best Sellers OOP/A1 ||");
+        System.out.println("================================");
+        System.out.println("1. Create Booklist");
+        System.out.println("2. Show Booklist");
+        System.out.println("3. Add Book");
+        System.out.println("4. Edit a Book");
+        System.out.println("5. Delete a Book");
+        System.out.println("6. Save Booklist");
+        System.out.println("7. Search in the list");
+        System.out.println("8. Exit");
+        System.out.print("choose an option: ");
+    }
+
+    // Create or load a book list from a file
+    public void createOrLoadBookList() throws BookException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Name of file to create booklist:");
+        String filename = scanner.nextLine().trim();
+
+        // Handle paths with quotes
+        if (filename.startsWith("\"") && filename.endsWith("\"")) {
+            filename = filename.substring(1, filename.length() - 1);
+        }
+
+        // Create or load the CSV file
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            bookList.createList(filename);
+            System.out.println("Book list loaded successfully!");
+        } catch (IOException e) {
+            // File does not exist, create a new file
+            try (FileWriter writer = new FileWriter(filename)) {
+                bookList.setFilename(filename); // Save the filename
+                System.out.println("Book list created successfully!");
+            } catch (IOException ioException) {
+                System.err.println("Error details: " + ioException.getMessage());
+                throw new BookException("Error creating CSV file: " + ioException.getMessage());
+            }
+        }
+    }
+
+    // Display the book list
+    public void displayBookList() {
+        System.out.println("");
+        bookList.printList();
+    }
+
+    // Add a new book to the list
+    public void addBook() throws BookException {
+        bookList.add(createBook(bookList.getSize()));
+    }
+
+    // Edit an existing book in the list
+    public void editBook() throws BookException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the index of the book to edit: ");
+        int index = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+        bookList.edit(index, createBook(index));
+        System.out.println("Book edited successfully.");
+    }
+
+    // Delete a book from the list
+    public void deleteBook() throws BookException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the index of the book to delete: ");
+        int index = scanner.nextInt();
+        bookList.delete(index);
+        System.out.println("Book [" + index + "] deleted successfully.");
+    }
+
+    // Save the book list to a file
+    public void saveBookList() throws BookException {
+        try {
+            bookList.saveList();
+        } catch (BookException e) {
+            System.err.println("BookException: " + e.getMessage());
+        }
+    }
+
+    // Search for books in the list
+    public void search() throws BookException {
+        System.out.print("Enter one string for seaarch in list: ");
+        Scanner scanner = new Scanner(System.in);
+        String term = scanner.nextLine();
+        bookList.search(term);
+    }
+
+    // Create a new book with user input
+    private Book createBook(int index) throws BookException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter book name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter author: ");
+        String author = scanner.nextLine();
+        System.out.print("Enter original language: ");
+        String originalLanguage = scanner.nextLine();
+        System.out.print("Enter first published year: ");
+
+        // Validate first published year input
+        int firstPublished;
+        try {
+            firstPublished = Integer.parseInt(scanner.nextLine());
+            if (firstPublished < 0 || firstPublished > 2024) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            throw new BookException("The year must be an integer between 0 and 2024");
+        }
+
+        // Validate approximate sales input
+        System.out.print("Enter approximate sales in millions: ");
+        float millionSales;
+        try {
+            millionSales = Float.parseFloat(scanner.nextLine());
+            if (millionSales < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            throw new BookException("Sales must be a positive number");
+        }
+
+        // Get genre input
+        System.out.print("Enter genre: ");
+        String genre = scanner.nextLine();
+        System.out.println("Book added successfully!");
+
+        // Validate book details
+        if (name.isEmpty() || author.isEmpty() || originalLanguage.isEmpty() || genre.isEmpty()|| millionSales > 0 ||firstPublished > 0 && firstPublished < 2024) {
+            
+        }
+
+        // Return the created book
+        return new Book(index, name, author, originalLanguage, firstPublished, millionSales, genre);
+    }
+}

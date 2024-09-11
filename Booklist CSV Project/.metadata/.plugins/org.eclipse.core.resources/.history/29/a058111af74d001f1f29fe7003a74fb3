@@ -1,0 +1,146 @@
+package system.book;
+
+import system.user.User;
+import system.util.SystemUtil;
+
+public class Book implements BookReadable, BookDownloadable {
+    private String name;
+    private String author;
+    private String originalLanguage;
+    private String genre;
+    private int firstPublished;
+    private float millionSales;
+    private int index;
+
+    // Constructor
+    public Book(String name, String author, String originalLanguage, String genre, int firstPublished, float millionSales, int index) {
+        this.name = name;
+        this.author = author;
+        this.originalLanguage = originalLanguage;
+        this.genre = genre;
+        this.firstPublished = firstPublished;
+        this.millionSales = millionSales;
+        this.index = index;
+    }
+
+    // Getters
+    public String getName() {
+        return name;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getOriginalLanguage() {
+        return originalLanguage;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public int getFirstPublished() {
+        return firstPublished;
+    }
+
+    public float getMillionSales() {
+        return millionSales;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setOriginalLanguage(String originalLanguage) {
+        this.originalLanguage = originalLanguage;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setFirstPublished(int firstPublished) {
+        this.firstPublished = firstPublished;
+    }
+
+    public void setMillionSales(float millionSales) {
+        this.millionSales = millionSales;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    // Implementation of BookReadable interface
+    @Override
+    public boolean read(User user) {
+        if (user != null && user.isActive()) {
+            System.out.println("Book " + this.name + " read by " + user.getEmail());
+            return true;
+        }
+        return false;
+    }
+
+    // Implementation of BookDownloadable interface
+    @Override
+    public boolean download(User user) {
+        if (user != null && user.isActive() && user.getPlan().getType() == UserPlan.planType.vip) {
+            System.out.println("Book " + this.name + " downloaded by " + user.getEmail());
+            return true;
+        }
+        return false;
+    }
+
+    // toString method
+    @Override
+    public String toString() {
+        return "Book{" +
+                "name='" + name + '\'' +
+                ", author='" + author + '\'' +
+                ", originalLanguage='" + originalLanguage + '\'' +
+                ", genre='" + genre + '\'' +
+                ", firstPublished=" + firstPublished +
+                ", millionSales=" + millionSales +
+                ", index=" + index +
+                '}';
+    }
+
+    // Universal creation method
+    public static Book createBook(String... params) {
+        if (params.length != 7) {
+            throw new IllegalArgumentException("Invalid number of parameters to create a Book.");
+        }
+
+        String name = params[0];
+        String author = params[1];
+        String originalLanguage = params[2];
+        String genre = params[5]; // Corrected to match the updated CSV format
+        int firstPublished;
+        float millionSales;
+        int index;
+
+        try {
+            firstPublished = Integer.parseInt(params[3]);
+            millionSales = Float.parseFloat(params[4]);
+            index = Integer.parseInt(params[6]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number format in parameters.");
+        }
+
+        if (!SystemUtil.isValid(name) || !SystemUtil.isValid(author) || !SystemUtil.isValid(originalLanguage) || !SystemUtil.isValid(genre)) {
+            throw new IllegalArgumentException("Invalid parameter value.");
+        }
+
+        return new Book(name, author, originalLanguage, genre, firstPublished, millionSales, index);
+    }
+}

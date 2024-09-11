@@ -1,0 +1,93 @@
+package system.user;
+
+import system.book.Book;
+import system.exception.UserException;
+import system.util.SystemUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class User {
+    private String email;
+    private String password;
+    private List<Book> bookList;
+    private UserPlan plan;
+
+    // Constructor
+    public User(String email, String password, UserPlan plan) {
+        this.email = email;
+        this.password = password;
+        this.plan = plan;
+        this.bookList = new ArrayList<>();
+    }
+
+    // Getters and Setters
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public List<Book> getBookList() { return bookList; }
+    public UserPlan getPlan() { return plan; }
+    public void setPlan(UserPlan plan) { this.plan = plan; }
+    public boolean isActive() { return this.plan.isActive(); }
+
+    // Add book to user's book list
+    public void addToBookList(java.awt.print.Book book) throws UserException {
+        if (!this.isActive()) {
+            throw new UserException("User is not active.");
+        }
+        this.bookList.addAll(book);
+    }
+
+    // Print book list
+    public void displayBookList() {
+        if (bookList.isEmpty()) {
+            System.out.println("Your book list is empty.");
+        } else {
+            for (Book book : bookList) {
+                System.out.println(book);
+            }
+        }
+    }
+
+    // Search book by index
+    public Book findBookByIndex(int index) throws UserException {
+        if (index < 0 || index >= bookList.size()) {
+            throw new UserException("Index out of range.");
+        }
+        return bookList.get(index);
+    }
+
+    // Load book list (from a file or another source)
+    public void loadBookList() {
+        // Placeholder for loading the book list (implementation depends on data source)
+    }
+
+    // Save book list (to a file or another source)
+    public void saveBookList() {
+        // Placeholder for saving the book list (implementation depends on data source)
+    }
+
+    // Universal creation method
+    public static User createUser(String... params) throws UserException {
+        if (params.length != 4) {
+            throw new IllegalArgumentException("Invalid number of parameters to create a User.");
+        }
+
+        String email = params[0];
+        String password = params[1];
+        UserPlan.planType planType;
+        try {
+            planType = UserPlan.planType.valueOf(params[2].toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new UserException("Invalid plan type.");
+        }
+
+        if (!SystemUtil.isValid(email) || !SystemUtil.isValid(password)) {
+            throw new UserException("Invalid parameter value.");
+        }
+
+        UserPlan plan = new UserPlan(planType, true);
+        return new User(email, password, plan);
+    }
+}

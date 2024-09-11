@@ -1,0 +1,43 @@
+package system.test;
+
+import org.junit.jupiter.api.Test;
+import system.book.Book;
+import system.user.User;
+import system.user.UserPlan;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestBook {
+    @Test
+    void testCreateBook() {
+        Book book = Book.createBook("The Hobbit", "J.R.R. Tolkien", "English", "Fantasy", "1937", "100.0", "1");
+        assertEquals("The Hobbit", book.getName());
+        assertEquals("J.R.R. Tolkien", book.getAuthor());
+        assertEquals("English", book.getOriginalLanguage());
+        assertEquals("Fantasy", book.getGenre());
+        assertEquals(1937, book.getFirstPublished());
+        assertEquals(100.0f, book.getMillionSales());
+        assertEquals(1, book.getIndex());
+    }
+
+    @Test
+    void testReadBook() {
+        User user = new User("test@mail.com", "password", new UserPlan(UserPlan.planType.standard, true));
+        Book book = Book.createBook("1984", "George Orwell", "English", "Dystopian", "1949", "50.0", "2");
+        assertTrue(book.read(user));
+    }
+
+    @Test
+    void testDownloadBook() {
+        User user = new User("test@mail.com", "password", new UserPlan(UserPlan.planType.vip, true));
+        Book book = Book.createBook("1984", "George Orwell", "English", "Dystopian", "1949", "50.0", "2");
+        assertTrue(book.download(user));
+    }
+
+    @Test
+    void testInvalidBookCreation() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Book.createBook("Invalid Book", "Unknown Author", "", "Fiction", "2020", "10.0", "3");
+        });
+    }
+}

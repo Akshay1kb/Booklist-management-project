@@ -1,0 +1,71 @@
+package system.user;
+
+import system.exception.UserException;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserList {
+    private List<User> userList;
+
+    public UserList() {
+        userList = new ArrayList<>();
+    }
+
+    // Add user to the list
+    public void addUser(User user) {
+        userList.add(user);
+    }
+
+    // Load user list from CSV file
+    public void loadUserList(String csvFile) throws UserException {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length != 3) {
+                    throw new UserException("Invalid data format in CSV file.");
+                }
+                String email = data[0];
+                String password = data[1];
+                UserPlan.planType type = UserPlan.planType.valueOf(data[2]);
+                UserPlan plan = new UserPlan(type, true); // Assuming all users are active for simplicity
+                User user = User.createUser(email, password, plan);
+                userList.add(user);
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            throw new UserException("Error reading the CSV file: " + e.getMessage());
+        }
+    }
+
+    // Save user list to CSV file
+    public void saveUserList(String csvFile) throws UserException {
+        try (FileWriter writer = new FileWriter(csvFile)) {
+            for (User user : userList) {
+                writer.write(user.getEmail() + "," + user.getPassword() + "," + user.getPlan().getType() + "\n");
+            }
+        } catch (IOException e) {
+            throw new UserException("Error writing to the CSV file: " + e.getMessage());
+        }
+    }
+
+    // Print the list of users
+    @Override
+    public String toString() {
+        if (userList.isEmpty()) {
+            return "The user list is empty.";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (User user : userList) {
+            sb.append("Email: ").append(user.getEmail())
+              .append(", Plan: ").append(user.getPlan().getType())
+              .append(", IsActive: ").append(user.isActive())
+              .append("\n");
+        }
+        return sb.toString();
+    }
+}
